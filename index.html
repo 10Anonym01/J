@@ -14,7 +14,7 @@
   <script>
     const userText = document.getElementById("userText");
     const responseText = document.getElementById("response");
-    let recognition;  // глобальная переменная
+    let recognition = null;
 
     function startListening() {
       if (!recognition) {
@@ -39,7 +39,6 @@
       if (recognition) {
         recognition.stop();
         recognition = null;
-        console.log("Микрофон выключен");
       }
     }
 
@@ -49,40 +48,27 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: text })
       })
-      .then(res => {
-        if (!res.ok) throw new Error("Ошибка от сервера");
-        return res.json();
-      })
+      .then(res => res.json())
       .then(data => {
         responseText.innerText = "JARVIS: " + data.answer;
-        speak(data.answer, data.audio); // передаём ссылку на MP3
+        console.log("Ответ:", data.answer);
+        console.log("Аудио URL:", data.audio);
+        speak(data.audio);
       })
       .catch(err => {
         responseText.innerText = "JARVIS: ошибка ответа";
-        console.log("Ошибка:", err);
+        console.error("Ошибка:", err);
       });
     }
 
-    function speak(text, audioUrl = null) {
+    function speak(audioUrl) {
       if (audioUrl) {
         const audio = new Audio(audioUrl);
-        audio.play();
+        audio.play().catch(e => console.error("Ошибка при воспроизведении:", e));
       } else {
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = /[а-яА-ЯЁё]/.test(text) ? 'ru-RU' : 'en-US';
-        speechSynthesis.speak(msg);
+        console.warn("Нет ссылки на аудио, воспроизведение не начато");
       }
     }
-
-    // Safari/Chrome разблокировка речи
-    document.addEventListener("click", () => {
-      if (!window._speechTested) {
-        const msg = new SpeechSynthesisUtterance(" ");
-        msg.lang = 'ru-RU';
-        speechSynthesis.speak(msg);
-        window._speechTested = true;
-      }
-    });
   </script>
 </body>
 </html>
