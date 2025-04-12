@@ -55,7 +55,7 @@
       })
       .then(data => {
         responseText.innerText = "JARVIS: " + data.answer;
-        speak(data.answer);
+        speak(data.answer, data.audio); // передаём ссылку на MP3
       })
       .catch(err => {
         responseText.innerText = "JARVIS: ошибка ответа";
@@ -63,14 +63,18 @@
       });
     }
 
-    function speak(text) {
-      console.log("ГОВОРЮ:", text);
-      const msg = new SpeechSynthesisUtterance(text);
-      msg.lang = /[а-яА-ЯЁё]/.test(text) ? 'ru-RU' : 'en-US';
-      speechSynthesis.speak(msg);
+    function speak(text, audioUrl = null) {
+      if (audioUrl) {
+        const audio = new Audio(audioUrl);
+        audio.play();
+      } else {
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = /[а-яА-ЯЁё]/.test(text) ? 'ru-RU' : 'en-US';
+        speechSynthesis.speak(msg);
+      }
     }
 
-    // Разрешаем браузеру говорить после первого клика (для Safari/Chrome)
+    // Safari/Chrome разблокировка речи
     document.addEventListener("click", () => {
       if (!window._speechTested) {
         const msg = new SpeechSynthesisUtterance(" ");
