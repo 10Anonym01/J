@@ -14,7 +14,7 @@
   <script>
     const userText = document.getElementById("userText");
     const responseText = document.getElementById("response");
-    let recognition;  // глобальная переменная
+    let recognition;
 
     function startListening() {
       if (!recognition) {
@@ -39,7 +39,7 @@
       if (recognition) {
         recognition.stop();
         recognition = null;
-        console.log("Микрофон выключен");
+        console.log("Микрофон отключён");
       }
     }
 
@@ -49,33 +49,28 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: text })
       })
-      .then(res => {
-        if (!res.ok) throw new Error("Ошибка от сервера");
-        return res.json();
-      })
+      .then(res => res.json())
       .then(data => {
         responseText.innerText = "JARVIS: " + data.answer;
         speak(data.answer);
       })
       .catch(err => {
         responseText.innerText = "JARVIS: ошибка ответа";
-        console.log("Ошибка:", err);
+        console.error("Ошибка:", err);
       });
     }
 
     function speak(text) {
-      console.log("ГОВОРЮ:", text);
       const msg = new SpeechSynthesisUtterance(text);
-      msg.lang = /[а-яА-ЯЁё]/.test(text) ? 'ru-RU' : 'en-US';
+      msg.lang = /[а-яА-ЯЁё]/.test(text) ? "ru-RU" : "en-US";
+      speechSynthesis.cancel(); // отключаем старый голос
       speechSynthesis.speak(msg);
     }
 
-    // Разрешаем браузеру говорить после первого клика (для Safari/Chrome)
+    // Safari: активируем речь
     document.addEventListener("click", () => {
       if (!window._speechTested) {
-        const msg = new SpeechSynthesisUtterance(" ");
-        msg.lang = 'ru-RU';
-        speechSynthesis.speak(msg);
+        speechSynthesis.speak(new SpeechSynthesisUtterance(" "));
         window._speechTested = true;
       }
     });
