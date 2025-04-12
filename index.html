@@ -8,7 +8,7 @@
   <h1>JARVIS</h1>
   <button onclick="startListening()">Говори</button>
   <button onclick="stopListening()">Стоп</button>
-  <p id="userText"> >... </p>
+  <p id="userText">  >... </p>
   <p id="response">JARVIS: ...</p>
 
   <script>
@@ -23,7 +23,7 @@
 
         recognition.onresult = function(event) {
           const text = event.results[0][0].transcript;
-          userText.innerText = "Ты: " + text;
+          userText.innerText = "  > " + text;
           sendToJarvis(text);
         };
 
